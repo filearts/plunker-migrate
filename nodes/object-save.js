@@ -29,8 +29,6 @@ module.exports = Straw.node({
       
       self.bloom.add(msg.sha);
       
-      console.log("Object saved", msg.sha);
-      
       done();
     });
   }

@@ -22,17 +22,19 @@ module.exports = Straw.node({
     
     if (this.config.last_updated_at) {
       query.updated_at = {
-        $gt: {
-          $date: (new Date(this.config.last_updated_at)).toISOString(),
-        }
+        $gte: new Date(this.config.last_updated_at)
       };
     }
+    
+    console.log("QUERY", query);
 
     this.mongo.findCursor("plunks", query, { sort: { updated_at: 1 } })
       .then(function (cursor) {
         cursor.countAsync()
           .then(function (count) {
             cursor.batchSize(16);
+            
+            console.log("Streaming ", count, "plunks");
 
             self.count = count;
             self.stream = cursor.stream();
@@ -44,12 +46,21 @@ module.exports = Straw.node({
             });
             
             self.stream.on("error", function (err) {
-              console.error("[ERR]", err.message);
+              console.log("[ERR]", err.message);
               console.trace(err);
+            });
+            
+            self.stream.on("end", function () {
+              console.log("End of plunk stream");
             });
             
             done();
           });
+      }, function (err) {
+        console.log("[ERR]", err.message);
+        console.trace(err);
+        
+        done(err);
       });
   }
 });

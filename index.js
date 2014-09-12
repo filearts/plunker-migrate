@@ -3,7 +3,7 @@ var Straw = require("straw");
 
 var progressFile = __dirname + "/progress.txt";
 
-var last_updated_at = Fs.existsSync(progressFile) ? (new Date(Fs.readFileSync(progressFile, "utf8"))).valueOf() : 0;
+var last_updated_at = Fs.existsSync(progressFile) ? parseInt(Fs.readFileSync(progressFile, "utf8"), 10) : 0;
 
 var redis = {
   host: 'localhost',
@@ -61,7 +61,7 @@ topo.add([{
 }], function () {
   console.log("Starting topology");
   
-  topo.start({purge: true});
+  topo.start();
 });
 
 // var plunks = Straw.tap({

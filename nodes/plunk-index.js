@@ -17,8 +17,6 @@ module.exports = Straw.node({
     
     this.es.index({index: this.config.index, type: this.config.type, id: msg._id, body: msg})
       .then(function () {
-        console.log("Plunk indexed", msg._id);
-        
         self.output(msg, done);
         done();
       }, function (err) {

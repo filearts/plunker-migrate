@@ -38,8 +38,6 @@ module.exports = Straw.node({
       _.forEachRight(oldPlunk.history, parseRevision);
     }
     
-    console.log("Plunk versions parsed", oldPlunk._id);
-    
     return {
       commit: lastCommit,
       version: version,
@@ -120,6 +118,7 @@ module.exports = Straw.node({
     }
   },
   parsePackages: function (tree) {
+    var self = this;
     var isHtmlRx = /\.html?$/i;
     var pkgRefRx = /<(?:script|link) [^>]*?data-(semver|require)="([^"]*)"(?: [^>]*?data-(semver|require)="([^"]*)")?/g;
     var refs = {};
@@ -128,7 +127,7 @@ module.exports = Straw.node({
       var match;
       
       if (!isHtmlRx.test(name)) return;
-      
+
       while ((match = pkgRefRx.exec(entry.content))) {
         var pkg = {};
         
@@ -155,13 +154,24 @@ module.exports = Straw.node({
       }
     });
     
-    _.forEach(refs, this.output.bind(this, "package-usage"));
-    
+    _.forEach(refs, function (pkg) {
+      console.log("Package added", pkg.name, pkg.semver);
+      self.output("package-usage", pkg);
+    });
+
     return _.values(refs);
   },
   process: function (oldPlunk, done) {
     var currentVersion = this.parseVersions(oldPlunk);
     var packages = this.parsePackages(currentVersion.commit.tree);
+    
+    if (oldPlunk.fork_of && oldPlunk.fork_of.length > 32) {
+      try {
+        oldPlunk.fork_of = JSON.parse(oldPlunk.fork_of)._id;
+      } catch (e) {
+        console.log("[ERR] Failed parsing of old fork_of");
+      }
+    }
   
     // Define the plunk
     var plunk = {
@@ -200,8 +210,6 @@ module.exports = Straw.node({
     if (!oldPlunk.private) {
       plunk.collections.push("plunker/public");
     }
-    
-    console.log("Plunk parsed", plunk._id);
     
     this.output("plunk-new", plunk, done);
   }
