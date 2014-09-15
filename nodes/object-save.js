@@ -9,27 +9,29 @@ module.exports = Straw.node({
       leveldb: "./objects",
     });
     
-    this.bloom = new Bloom.BloomFilter(1024 * 1024, 32);
+    this.seen = {};
     this.level = new Level(this.config.leveldb);
     
     done();
   },
+  
   process: function (msg, done) {
     var self = this;
     
-    if (this.bloom.test(msg.sha)) return done();
+    if (this.seen[msg.sha]) return done();
     
-    this.level.put(msg.sha, msg.buffer, function (err) {
-      if (err) {
-        console.error("[ERR] Error saving object", msg);
-        console.trace(err);
+    this.level.put(msg.sha, msg.buffer);
+    // , function (err) {
+    //   if (err) {
+    //     console.error("[ERR] Error saving object", msg);
+    //     console.trace(err);
         
-        done(err);
-      }
+    //     done(err);
+    //   }
       
-      self.bloom.add(msg.sha);
+      self.seen[msg.sha] = true;
       
       done();
-    });
+    // });
   }
 });

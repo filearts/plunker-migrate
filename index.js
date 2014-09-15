@@ -54,21 +54,22 @@ topo.add([{
   id: "progress-save",
   node: "progress-save",
   input: "plunk-indexed",
-  // output: "plunk-id",
+  output: "plunk-id",
   config: {
     progressFile: progressFile,
   },
+}, {
+  id: "track-speed",
+  node: "track-speed",
+  input: "plunk-id",
 }], function () {
   console.log("Starting topology");
   
   topo.start();
 });
 
-// var plunks = Straw.tap({
-//   input: "plunk-id",
-//   redis: redis,
-// });
-
-// plunks.on("message", function (id) {
-//   console.log("Plunk", id);
-// });
+process.on( 'SIGINT', function() {
+  topo.destroy(function(){
+    console.log( 'Finished.' );
+  });
+});

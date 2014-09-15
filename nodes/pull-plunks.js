@@ -26,13 +26,15 @@ module.exports = Straw.node({
       };
     }
     
+    // return done();
+    
     console.log("QUERY", query);
 
     this.mongo.findCursor("plunks", query, { sort: { updated_at: 1 } })
       .then(function (cursor) {
         cursor.countAsync()
           .then(function (count) {
-            cursor.batchSize(16);
+            //cursor.batchSize(10);
             
             console.log("Streaming ", count, "plunks");
 

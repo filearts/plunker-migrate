@@ -11,21 +11,26 @@ module.exports = Straw.node({
       progressFile: "./progress.txt",
     });
     
-    this.interval = setInterval(function () {
-      if (self.updated_at) {
-        Fs.writeFileSync(self.config.progressFile, self.updated_at);
-        
-        console.log("Progress saved", new Date(self.updated_at));
-      }
-    }, 1000);
+    done();
+  },
+  start: function (done) {
+    this.interval = setInterval(this.tick.bind(this), 10000);
     
     done();
   },
+  stop: function (done) {
+    clearInterval(this.interval);
+  },
+  tick: function () {
+    if (this.updated_at) {
+      Fs.writeFileSync(this.config.progressFile, this.updated_at);
+    }
+  },
+  
   process: function (msg, done) {
     this.updated_at = Math.max(this.updated_at, ( new Date(msg.updated_at)).valueOf());
     
-    //this.output(msg._id, done);
+    this.output(msg.updated_at, done);
     
-    done();
   }
 });

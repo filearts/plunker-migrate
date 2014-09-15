@@ -127,7 +127,7 @@ module.exports = Straw.node({
       var match;
       
       if (!isHtmlRx.test(name)) return;
-
+      
       while ((match = pkgRefRx.exec(entry.content))) {
         var pkg = {};
         
@@ -154,10 +154,9 @@ module.exports = Straw.node({
       }
     });
     
-    _.forEach(refs, function (pkg) {
-      console.log("Package added", pkg.name, pkg.semver);
-      self.output("package-usage", pkg);
-    });
+    // _.forEach(refs, function (pkg) {
+    //   self.output("package-usage", pkg);
+    // });
 
     return _.values(refs);
   },
